@@ -13,10 +13,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""calico-mesos-framework
+
+Easily test Calico networking in your mesos cluster.
+
+Usage:
+  calico_framework.py [<master>] [--default-executor]
+
+Dockerized Usage:
+  docker run calico/calico-mesos-framework <args...>
+
+Description:
+  Add or remove containers to Calico networking, manage their IP addresses and profiles.
+  All these commands must be run on the host that contains the container.
+
+Options:
+  master                 The IP and Port of the mesos master to register with.
+  --default-executor       Force tests to always use default executor.
+"""
 import os
 import sys
 import subprocess
-import re
 import time
 import threading
 import math
@@ -24,6 +41,7 @@ from random import randint
 import mesos.interface
 from mesos.interface import mesos_pb2
 import mesos.native
+from docopt import docopt
 from calico_utils import _setup_logging
 from tasks import (TaskUpdateError,
                    SleepTask,
@@ -551,11 +569,16 @@ class NotEnoughResources(Exception):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        master_ip = get_host_ip() + ":5050"
-        print "Assuming local IP for master: %s" % master_ip
-    else:
-        master_ip = sys.argv[1]
+    arguments = docopt(__doc__)
+
+    master_ip = arguments['<master>']
+    if not master_ip:
+        print "No Master Specified. Defaulting: localhost:5050"
+        master_ip = "localhost:5050"
+
+    print "Connecting to Master: ", master_ip
+
+    always_default_executor = arguments['--default-executor']
 
     framework = mesos_pb2.FrameworkInfo()
     framework.user = ""  # Have Mesos fill in the current user.

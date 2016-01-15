@@ -18,7 +18,9 @@ class Task(object):
                  netgroups=None,
                  slave=None,
                  calico=True,
-                 default_executor=False,
+                 # FIXME: restore this to False to ensure Calico works
+                 # with custom Executors.
+                 default_executor=True,
                  *args, **kwargs):
         if requested_ips:
             assert calico, "Must use Calico Networking if spawning task " \
