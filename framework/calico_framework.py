@@ -20,7 +20,7 @@ Easily test Calico networking in your mesos cluster.
 Usage:
   calico_framework.py [<master>] [--default-executor]
 
-Dockerized Usage:
+Dockerized:
   docker run calico/calico-mesos-framework <args...>
 
 Description:
