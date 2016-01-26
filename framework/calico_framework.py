@@ -609,19 +609,21 @@ if __name__ == "__main__":
                          cant_ping_targets=[sleep_task])
     scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
 
-    test_name = "Different-Host Same-Netgroups Can Ping"
-    sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0)
-    ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
-                         can_ping_targets=[sleep_task])
-    scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
+    # TODO:  Disabled for Jenkins STs which only have one slave
+    # test_name = "Different-Host Same-Netgroups Can Ping"
+    # sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0)
+    # ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
+    #                      can_ping_targets=[sleep_task])
+    # scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
 
-    test_name = "Different-Host Same-Netgroups Can Ping (Default Executor)"
-    sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0,
-                           default_executor=True)
-    ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
-                         default_executor=True,
-                         can_ping_targets=[sleep_task])
-    scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
+    # TODO:  Disabled for Jenkins STs which only have one slave
+    # test_name = "Different-Host Same-Netgroups Can Ping (Default Executor)"
+    # sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0,
+    #                        default_executor=True)
+    # ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
+    #                      default_executor=True,
+    #                      can_ping_targets=[sleep_task])
+    # scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
 
     test_name = "Tasks that Opt-out of Calico can Communicate"
     sleep_task = NetcatListenTask()
