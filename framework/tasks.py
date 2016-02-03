@@ -363,3 +363,70 @@ class SleepTask(Task):
     @property
     def dependencies_are_met(self):
         return self.state is None
+
+
+class DockerSleepTask(SleepTask):
+    def as_new_mesos_task(self):
+        """
+        Take the information stored in this Task object and fill a
+        mesos task.
+        """
+        assert self.task_id, "Calico task must be assigned a task_id"
+        assert self.slave_id, "Calico task must be assigned a slave_id"
+
+        task = mesos_pb2.TaskInfo()
+        task.name = repr(self)
+        task.task_id.value = self.task_id
+        task.slave_id.value = self.slave_id
+
+        cpus = task.resources.add()
+        cpus.name = "cpus"
+        cpus.type = mesos_pb2.Value.SCALAR
+        cpus.scalar.value = TASK_CPUS
+
+        mem = task.resources.add()
+        mem.name = "mem"
+        mem.type = mesos_pb2.Value.SCALAR
+        mem.scalar.value = TASK_MEM
+
+        task.container.type = mesos_pb2.ContainerInfo.MESOS
+        task.container.mesos.image.type = mesos_pb2.Image.DOCKER
+        task.container.mesos.image.docker.name = "ubuntu:14.04"
+        task.command.value = "ifconfig"
+        # commandinfo?
+        # executorinfo?
+
+        #dockerinfo in the containerinfo in the executorinfo
+        # task.executor.container.type = mesos_pb2.ContainerInfo.MESOS
+
+
+        # task.executor.executor_id.value = "test1"
+        #
+        # task.executor.container.docker.image = "hello-world"
+        # # task.executor.container.image = "hello-world"
+        # task.executor.container.mesos.image.type = mesos_pb2.Image.DOCKER
+        # task.executor.command.value = "echo hi"
+
+
+        # NOTE: MesosContainerizer does currently not support this.
+        # Tasks supplying a "container" will fail
+        # task.command.container.image = "hello-world"
+
+        # task.container.mesos.image.docker.name = "hello-world"
+
+        network_info = task.container.network_infos.add()
+
+        for netgroup in self.netgroups:
+            network_info.groups.append(netgroup)
+
+        for ip in self.requested_ips:
+            network_info.ip_addresses.add().ip_address = ip
+
+        for _ in range(self.auto_ipv4):
+            network_info.ip_addresses.add().protocol = \
+                mesos_pb2.NetworkInfo.IPv4
+        for _ in range(self.auto_ipv6):
+            network_info.ip_addresses.add().protocol = \
+                mesos_pb2.NetworkInfo.IPv4
+
+        return task
