@@ -6,7 +6,7 @@ This custom Mesos Framework reports if calico is functioning properly on your cl
 ## Dockerized Usage
 We recommend using the dockerized version of this framework, which can be run anywhere with the following simple command:
 
-    docker run calico/calico-mesos-framework <MasterIP:Port>
+    docker run calico/calico-mesos-framework --master=<MasterIP:Port>
 
 
 ## Manual Usage
