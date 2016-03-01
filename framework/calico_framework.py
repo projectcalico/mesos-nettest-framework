@@ -18,7 +18,8 @@
 Easily test Calico networking in your mesos cluster.
 
 Usage:
-  calico_framework.py [--master=<MASTER>] [--num-agents=<NUM_AGENTS>]
+  calico_framework.py [--master=<MASTER>] [--num-agents=<NUM_AGENTS>] 
+  [--default-executor=(true|false)]
 
 Dockerized:
   docker run calico/calico-mesos-framework <args...>
@@ -32,6 +33,10 @@ Options:
                            [default: localhost:5050]
   --num-hosts=<NUM_AGENTS> Number of agents in the cluster. Setting this to one
                            will disable multi-host tests. [default: 2]
+  --default-executor=<DEFAULT_EXECUTOR> Set to false to true to allow tests which
+                                        use the default executor. Note: this requires
+                                        your agent has calico_executor.py installed 
+                                        properly. [default: false]
 """
 import os
 import sys
@@ -575,7 +580,9 @@ if __name__ == "__main__":
     master_ip = arguments['--master']
     print "Connecting to Master: ", master_ip
 
-    num_agents = arguments['--num-agents']
+    num_agents = int(arguments['--num-agents'])
+
+    default_executor_enabled = arguments['--default-executor'] == "true"
 
     framework = mesos_pb2.FrameworkInfo()
     framework.user = ""  # Have Mesos fill in the current user.
@@ -613,23 +620,25 @@ if __name__ == "__main__":
                              can_ping_targets=[sleep_task])
         scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
 
-        test_name = "Different-Host Same-Netgroups Can Ping (Default Executor)"
-        sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0,
-                               default_executor=True)
-        ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
-                             default_executor=True,
-                             can_ping_targets=[sleep_task])
-        scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
+        if default_executor_enabled:
+            test_name = "Different-Host Same-Netgroups Can Ping (Default Executor)"
+            sleep_task = SleepTask(netgroups=['netgroup_a'], slave=0,
+                                   default_executor=True)
+            ping_task = PingTask(netgroups=['netgroup_a'], slave=1,
+                                 default_executor=True,
+                                 can_ping_targets=[sleep_task])
+            scheduler.tests.append(TestCase([sleep_task, ping_task], name=test_name))
 
     test_name = "Tasks that Opt-out of Calico can Communicate"
     sleep_task = NetcatListenTask()
     cat_task = NetcatSendTask(can_cat_targets=[sleep_task])
     scheduler.tests.append(TestCase([sleep_task, cat_task], name=test_name))
 
-    test_name = "Tasks that Opt-out of Calico can Communicate (Default Executor)"
-    sleep_task = NetcatListenTask(default_executor=True)
-    cat_task = NetcatSendTask(can_cat_targets=[sleep_task], default_executor=True)
-    scheduler.tests.append(TestCase([sleep_task, cat_task], name=test_name))
+    if default_executor_enabled: 
+        test_name = "Tasks that Opt-out of Calico can Communicate (Default Executor)"
+        sleep_task = NetcatListenTask(default_executor=True)
+        cat_task = NetcatSendTask(can_cat_targets=[sleep_task], default_executor=True)
+        scheduler.tests.append(TestCase([sleep_task, cat_task], name=test_name))
 
     test_name = "Multiple Netgroup Task Can Ping Each"
     sleep_task_1 = SleepTask(netgroups=['netgroup_a'])
