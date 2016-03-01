@@ -580,7 +580,11 @@ if __name__ == "__main__":
     master_ip = arguments['--master']
     print "Connecting to Master: ", master_ip
 
-    num_agents = int(arguments['--num-agents'])
+    try:
+        num_agents = int(arguments['--num-agents'])
+    except ValueError:
+        print "ERROR: --num-agents must be an integer."
+        sys.exit(1)
 
     default_executor_enabled = arguments['--default-executor'] == "true"
 
