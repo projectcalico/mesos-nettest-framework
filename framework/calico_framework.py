@@ -31,7 +31,7 @@ Description:
 Options:
   --master=<MASTER>        The IP and Port of the mesos master to register with.
                            [default: localhost:5050]
-  --num-hosts=<NUM_AGENTS> Number of agents in the cluster. Setting this to one
+  --num-agents=<NUM_AGENTS> Number of agents in the cluster. Setting this to one
                            will disable multi-host tests. [default: 2]
   --default-executor=<DEFAULT_EXECUTOR> Set to false to true to allow tests which
                                         use the default executor. Note: this requires
