@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2015 Metaswitch Networks
+# Copyright 2015 Tigera, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 Easily test Calico networking in your mesos cluster.
 
 Usage:
-  calico_framework.py [--master=<MASTER>] [--num-agents=<NUM_AGENTS>] 
+  calico_framework.py [--master=<MASTER>] [--num-agents=<NUM_AGENTS>]
   [--default-executor=(true|false)]
 
 Dockerized:
@@ -35,7 +35,7 @@ Options:
                            will disable multi-host tests. [default: 2]
   --default-executor=<DEFAULT_EXECUTOR> Set to false to true to allow tests which
                                         use the default executor. Note: this requires
-                                        your agent has calico_executor.py installed 
+                                        your agent has calico_executor.py installed
                                         properly. [default: false]
 """
 import os
@@ -638,7 +638,7 @@ if __name__ == "__main__":
     cat_task = NetcatSendTask(can_cat_targets=[sleep_task])
     scheduler.tests.append(TestCase([sleep_task, cat_task], name=test_name))
 
-    if default_executor_enabled: 
+    if default_executor_enabled:
         test_name = "Tasks that Opt-out of Calico can Communicate (Default Executor)"
         sleep_task = NetcatListenTask(default_executor=True)
         cat_task = NetcatSendTask(can_cat_targets=[sleep_task], default_executor=True)
